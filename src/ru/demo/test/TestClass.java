@@ -30,8 +30,13 @@ public class TestClass {
     }
 
     @Test(priority = 7)
-    public static void methodTest7() {
+    @CsvSource(value = "10, Java, 20, true")
+    public static void methodTest7(int a, String b, int c, boolean d) {
         System.out.println("methodTest7();");
+        System.out.println("a=" + a);
+        System.out.println("b=" + b);
+        System.out.println("c=" + c);
+        System.out.println("d=" + d);
     }
 
     @BeforeSuite
@@ -42,15 +47,6 @@ public class TestClass {
     @AfterSuite
     public static void methodAfterSuite() {
         System.out.println("methodAfterSuite();");
-    }
-
-    @CsvSource(value = "10, Java, 20, true")
-    public static void methodCsvSource(int a, String b, int c, boolean d) {
-        System.out.println("methodCsvSource();");
-        System.out.println("a=" + a);
-        System.out.println("b=" + b);
-        System.out.println("c=" + c);
-        System.out.println("d=" + d);
     }
 
     private TestClass() {

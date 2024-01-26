@@ -34,35 +34,41 @@ public class TestRunner {
             var testMethods = Arrays.stream(methods).filter(m -> m.isAnnotationPresent(Test.class)).collect(Collectors.toList());
             var beforeTestMethods = Arrays.stream(methods).filter(m -> m.isAnnotationPresent(BeforeTest.class)).collect(Collectors.toList());
             var afterTestMethods = Arrays.stream(methods).filter(m -> m.isAnnotationPresent(AfterTest.class)).collect(Collectors.toList());
-            var csvSourceMethods = Arrays.stream(methods).filter(m -> m.isAnnotationPresent(CsvSource.class)).collect(Collectors.toList());
             testMethods.sort((m1, m2) -> m2.getAnnotation(Test.class).priority() - m1.getAnnotation(Test.class).priority());
 
             if (beforeSuite.isPresent())
-                beforeSuite.get().invoke(c, null);
+                beforeSuite.get().invoke(null, null);
 
             for (Method testMethod : testMethods) {
                 for (Method beforeTestMethod : beforeTestMethods) {
-                    beforeTestMethod.invoke(c, null);
+                    beforeTestMethod.invoke(null, null);
                 }
-                testMethod.invoke(c, null);
+                if (testMethod.isAnnotationPresent(CsvSource.class)) {
+                    var paramtypes = testMethod.getParameterTypes();
+                    var params = Optional.ofNullable(testMethod.getAnnotation(CsvSource.class).value()).orElse("").split(", ");
+                    if (params.length != paramtypes.length)
+                        throw new RuntimeException("В аннотации @CsvSource строка должна иметь " + paramtypes.length + " параметра");
+                    Object[] arguments = new Object[paramtypes.length];
+                    for (int paramIndex = 0; paramIndex < paramtypes.length; paramIndex++) {
+                        if (int.class.equals(paramtypes[paramIndex])) {
+                            arguments[paramIndex] = Integer.parseInt(params[paramIndex]);
+                        } else if (boolean.class.equals(paramtypes[paramIndex])) {
+                            arguments[paramIndex] = Boolean.getBoolean(params[paramIndex]);
+                        } else {
+                            arguments[paramIndex] = params[paramIndex];
+                        }
+                    }
+                    testMethod.invoke(null, arguments);
+                } else {
+                    testMethod.invoke(null, null);
+                }
                 for (Method afterTestMethod : afterTestMethods) {
-                    afterTestMethod.invoke(c, null);
+                    afterTestMethod.invoke(null, null);
                 }
             }
 
             if (afterSuite.isPresent())
-                afterSuite.get().invoke(c, null);
-
-            for (Method method : csvSourceMethods) {
-                var params = Optional.ofNullable(method.getAnnotation(CsvSource.class).value()).orElse("").split(", ");
-                if (params.length != 4)
-                    throw new RuntimeException("В аннотации @CsvSource строка должна иметь 4 параметра");
-                int a_ = Integer.parseInt(params[0]);
-                String b_ = params[1];
-                int c_ = Integer.parseInt(params[2]);
-                boolean d_ = Boolean.getBoolean(params[3]);
-                method.invoke(c, a_, b_, c_, d_);
-            }
+                afterSuite.get().invoke(null, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
