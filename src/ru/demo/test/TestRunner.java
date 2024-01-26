@@ -44,15 +44,15 @@ public class TestRunner {
                     beforeTestMethod.invoke(null, null);
                 }
                 if (testMethod.isAnnotationPresent(CsvSource.class)) {
-                    var paramtypes = testMethod.getParameterTypes();
+                    var paramTypes = testMethod.getParameterTypes();
                     var params = Optional.ofNullable(testMethod.getAnnotation(CsvSource.class).value()).orElse("").split(", ");
-                    if (params.length != paramtypes.length)
-                        throw new RuntimeException("В аннотации @CsvSource строка должна иметь " + paramtypes.length + " параметра");
-                    Object[] arguments = new Object[paramtypes.length];
-                    for (int paramIndex = 0; paramIndex < paramtypes.length; paramIndex++) {
-                        if (int.class.equals(paramtypes[paramIndex])) {
+                    if (params.length != paramTypes.length)
+                        throw new RuntimeException("В аннотации @CsvSource строка должна иметь " + paramTypes.length + " параметра");
+                    var arguments = new Object[paramTypes.length];
+                    for (int paramIndex = 0; paramIndex < paramTypes.length; paramIndex++) {
+                        if (int.class.equals(paramTypes[paramIndex])) {
                             arguments[paramIndex] = Integer.parseInt(params[paramIndex]);
-                        } else if (boolean.class.equals(paramtypes[paramIndex])) {
+                        } else if (boolean.class.equals(paramTypes[paramIndex])) {
                             arguments[paramIndex] = Boolean.getBoolean(params[paramIndex]);
                         } else {
                             arguments[paramIndex] = params[paramIndex];
