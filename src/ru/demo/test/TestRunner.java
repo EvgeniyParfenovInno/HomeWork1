@@ -29,7 +29,6 @@ public class TestRunner {
                 throw new RuntimeException("Значение priority в аннотация @Test должно находиться в диапазоне от 1 до 10 ");
             }
 
-
             var beforeSuite = Arrays.stream(methods).filter(m -> m.isAnnotationPresent(BeforeSuite.class)).findFirst();
             var afterSuite = Arrays.stream(methods).filter(m -> m.isAnnotationPresent(AfterSuite.class)).findFirst();
             var testMethods = Arrays.stream(methods).filter(m -> m.isAnnotationPresent(Test.class)).collect(Collectors.toList());
